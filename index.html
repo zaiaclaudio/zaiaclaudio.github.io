@@ -176,8 +176,8 @@
 
   <section class="hero">
     <h1>Video che non pensavi di poter fare.</h1>
-    <p>Sono un montatore freelance con +dieci anni di esperienza e produco video con l'AI. Ho lavorato per brand come Adidas e Calvin Klein e con agenzie come TBWA.</p>
-    <p class="where">Lavoro con agenzie e brand in Italia e dall'Europa.</p>
+    <p>Sono un montatore freelance con dieci anni di esperienza e produco video con l'AI. Ho lavorato per brand come Adidas e Calvin Klein e con agenzie come TBWA.</p>
+    <p class="where">Conegliano, Veneto. Lavoro con agenzie e brand in Italia e all'estero.</p>
   </section>
 
   <section class="reel" aria-label="Showreel">
@@ -206,7 +206,7 @@
       </div>
       <div>
         <h3>Video finito</h3>
-        <p>Genero e monto fino al video pronto da pubblicare nei formati che ti servono.</p>
+        <p>Genero e monto tutto io, fino al video pronto da pubblicare nei formati che ti servono.</p>
       </div>
     </div>
     <p class="note">Puoi affidarmi solo una parte del lavoro o l'intero progetto.</p>
@@ -217,23 +217,25 @@
 <section class="contact" id="contatti">
   <div class="wrap">
     <h2>Hai un progetto da montare?</h2>
-    <a class="mail" href="mailto:ciao@tuodominio.it">claudiozaiavideo@gmail.com</a>
+    <a class="mail" href="mailto:ciao@tuodominio.it">ciao@tuodominio.it</a>
     <ul>
       <li><a href="https://www.instagram.com/">Instagram</a></li>
       <li><a href="https://www.linkedin.com/">LinkedIn</a></li>
       <li><a href="https://vimeo.com/">Vimeo</a></li>
     </ul>
-    <small>Claudio Zaia, Conegliano (TV)</small>
+    <small>Claudio Zaia, Conegliano</small>
   </div>
 </section>
 
 <script>
 /* ============================================================
-   DA MODIFICARE: incolla qui solo l'ID dei tuoi video YouTube.
-   Esempio: per https://www.youtube.com/watch?v=dQw4w9WgXcQ
-   l'ID e' dQw4w9WgXcQ
+   DA MODIFICARE: per ogni video incolla il link completo, di
+   YouTube oppure di Vimeo (va bene anche con parti in piu').
+   Esempi:
+   https://vimeo.com/429539400
+   https://www.youtube.com/watch?v=dQw4w9WgXcQ
    ============================================================ */
-const SHOWREEL_ID = "https://vimeo.com/429539400?share=copy&fl=sv&fe=ci";
+const SHOWREEL_ID = "https://vimeo.com/429539400";
 
 const LAVORI = [
   { titolo: "Titolo del lavoro 1", dettaglio: "Cliente, montaggio", yt: "" },
@@ -252,17 +254,50 @@ const LAVORI_AI = [
 /* ---- da qui in giu' non serve toccare nulla ---- */
 const PLAY_ICON = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4l14 8-14 8z"/></svg>';
 
-function buildFrame(el, id, label, big) {
-  if (!id) {
+function leggiVideo(v) {
+  if (!v) return null;
+  v = String(v).trim();
+  let m = v.match(/vimeo\.com\/(?:video\/)?(\d+)(?:\/([a-z0-9]+))?/i);
+  if (m) {
+    const h = m[2] || (v.match(/[?&]h=([a-z0-9]+)/i) || [])[1] || "";
+    return { tipo: "vimeo", id: m[1], h: h };
+  }
+  if (/^\d+$/.test(v)) return { tipo: "vimeo", id: v, h: "" };
+  m = v.match(/(?:youtu\.be\/|v=|shorts\/|embed\/)([A-Za-z0-9_-]{11})/);
+  if (m) return { tipo: "youtube", id: m[1] };
+  if (/^[A-Za-z0-9_-]{11}$/.test(v)) return { tipo: "youtube", id: v };
+  return null;
+}
+
+function buildFrame(el, valore, label, big) {
+  const v = leggiVideo(valore);
+  if (!v) {
     el.innerHTML = '<div class="empty"><p>Video da aggiungere</p></div>';
     return;
   }
   el.innerHTML =
-    '<img alt="" loading="lazy" src="https://img.youtube.com/vi/' + id + '/hqdefault.jpg">' +
+    '<img alt="" loading="lazy" style="display:none">' +
     '<button class="play" type="button" aria-label="Guarda: ' + label + '"><span>' + PLAY_ICON + (big ? 'Guarda lo showreel' : 'Guarda') + '</span></button>';
+
+  const img = el.querySelector("img");
+  img.addEventListener("load", function () { img.style.display = "block"; });
+
+  if (v.tipo === "youtube") {
+    img.src = "https://img.youtube.com/vi/" + v.id + "/hqdefault.jpg";
+  } else {
+    const url = "https://vimeo.com/" + v.id + (v.h ? "/" + v.h : "");
+    fetch("https://vimeo.com/api/oembed.json?width=1280&url=" + encodeURIComponent(url))
+      .then(function (r) { return r.json(); })
+      .then(function (d) { if (d && d.thumbnail_url) img.src = d.thumbnail_url; })
+      .catch(function () {});
+  }
+
   el.querySelector("button").addEventListener("click", function () {
-    el.innerHTML = '<iframe src="https://www.youtube-nocookie.com/embed/' + id +
-      '?autoplay=1&rel=0" title="' + label + '" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>';
+    const src = v.tipo === "youtube"
+      ? "https://www.youtube-nocookie.com/embed/" + v.id + "?autoplay=1&rel=0"
+      : "https://player.vimeo.com/video/" + v.id + "?autoplay=1" + (v.h ? "&h=" + v.h : "");
+    el.innerHTML = '<iframe src="' + src + '" title="' + label +
+      '" allow="autoplay; fullscreen; picture-in-picture; encrypted-media" allowfullscreen></iframe>';
   });
 }
 
