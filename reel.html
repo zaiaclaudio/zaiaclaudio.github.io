@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-<title>Claudio Zaia | Video editor</title>
-<meta name="description" content="Portfolio di Claudio Zaia, video editor a Conegliano. Progetti commerciali, video musicali, social media e video con AI.">
+<title>Reel | Claudio Zaia</title>
+<meta name="description" content="Showreel di Claudio Zaia, video editor a Conegliano.">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎬</text></svg>">
@@ -44,24 +44,8 @@
   footer.site a:hover { color: var(--accent); }
 
   @media (max-width: 760px) { header.top nav { gap: 18px; } }
-  .intro { padding: 40px 0 8px; }
-  .intro h1 { font-family: var(--display); font-weight: 800; font-size: clamp(2rem, 4.6vw, 3.5rem); line-height: 1.05; letter-spacing: -0.025em; max-width: 22ch; }
-  .intro h1 span { color: var(--accent); }
-
-  .filters { display: flex; flex-wrap: wrap; gap: 10px; margin: 40px 0 32px; }
-  .filters button { font-family: var(--body); font-weight: 600; font-size: 0.9375rem; color: var(--ink); background: transparent; border: 1px solid var(--line); padding: 8px 18px; border-radius: 999px; cursor: pointer; }
-  .filters button:hover { border-color: var(--ink); }
-  .filters button[aria-pressed="true"] { background: var(--ink); color: var(--white); border-color: var(--ink); }
-
-  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px 24px; }
-  .clip .frame { border-radius: 4px; }
-  .clip .frame button.play span { padding: 10px 18px; font-size: 0.9375rem; }
-  .clip .tag { display: block; margin-top: 14px; font-size: 0.75rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); }
-  .clip h3 { font-family: var(--display); font-weight: 600; font-size: 1.1875rem; line-height: 1.25; margin-top: 4px; }
-  .clip p { color: var(--muted); font-size: 0.9375rem; }
-
-  @media (max-width: 980px) { .grid { grid-template-columns: repeat(2, 1fr); } }
-  @media (max-width: 620px) { .grid { grid-template-columns: 1fr; } .intro { padding-top: 16px; } }
+  .reel { padding-top: 32px; }
+  .caption { margin-top: 14px; color: var(--muted); font-size: 0.9375rem; }
 </style>
 </head>
 <body>
@@ -69,17 +53,14 @@
   <header class="top">
     <a class="name" href="index.html">Claudio Zaia</a>
     <nav aria-label="Menu">
-      <a href="index.html" aria-current="page">Work</a>
-      <a href="reel.html">Reel</a>
+      <a href="index.html">Work</a>
+      <a href="reel.html" aria-current="page">Reel</a>
       <a href="about.html">About</a>
     </nav>
   </header>
-  <main>
-    <section class="intro">
-      <h1><span>Video editor</span> a Conegliano. Commerciali, video musicali, social media e AI.</h1>
-    </section>
-    <div class="filters" id="filtri" role="group" aria-label="Filtra i lavori"></div>
-    <div class="grid" id="grid"></div>
+  <main class="reel">
+    <div class="frame" id="showreel"></div>
+    <p class="caption">Showreel 2026</p>
   </main>
   <footer class="site">
     <a href="mailto:claudiozaiavideo@gmail.com">claudiozaiavideo@gmail.com</a>
@@ -91,32 +72,10 @@
 </div>
 
 <script>
-/* ============================================================
-   DA MODIFICARE: i tuoi lavori.
-   Per ogni video: titolo, dettaglio, categoria e link (Vimeo o YouTube).
-   Categorie possibili: "commerciali", "musica", "social", "ai".
-   Un filtro compare in alto solo se ha almeno un video.
-   Ogni riga finisce con la virgola, tranne l'ultima.
-   ============================================================ */
-const LAVORI = [
-  { titolo: "Calvin Klein - Overall", dettaglio: "Calvin Klein, edit", categoria: "commerciali", yt: "https://vimeo.com/312907256" },
-  { titolo: "Adidas - Claim Your Trophy", dettaglio: "Adidas, edit", categoria: "commerciali", yt: "https://vimeo.com/312907126" },
-  { titolo: "OUR EARTH - Iris Van Herpen", dettaglio: "Future Frank, creative direction + edit", categoria: "commerciali", yt: "https://vimeo.com/312907019" },
-  { titolo: "NikeSB - CPH Open Tour", dettaglio: "Nike, creative direction + edit", categoria: "commerciali", yt: "https://vimeo.com/312906534" },
-  { titolo: "Absolute - Tomorrowland", dettaglio: "Absolute, edit", categoria: "commerciali", yt: "https://vimeo.com/422467738" },
-  { titolo: "Goldband - Alles Kapot", dettaglio: "Video musicale, 1,4 milioni di views", categoria: "musica", yt: "https://www.youtube.com/watch?v=MZnHEy-FIKs" },
-  { titolo: "Sidel Infissi", dettaglio: "Digitalia, direzione creativa AI", categoria: "ai", yt: "https://vimeo.com/1228917833" },
-  { titolo: "Mionetto 2026", dettaglio: "Awom, mixed media e AI", categoria: "ai", yt: "https://vimeo.com/1228916392" },
-  { titolo: "Bibanesi", dettaglio: "Awom, ideazione e creazione AI", categoria: "ai", yt: "https://vimeo.com/1228918082" }
-];
+/* DA MODIFICARE: link del reel (Vimeo o YouTube) */
+const SHOWREEL = "https://vimeo.com/429539400";
 
 /* ---- da qui in giu' non serve toccare nulla ---- */
-const CATEGORIE = [
-  { id: "commerciali", nome: "Commerciali" },
-  { id: "musica", nome: "Video musicali" },
-  { id: "social", nome: "Social media" },
-  { id: "ai", nome: "AI" }
-];
 const PLAY_ICON = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4l14 8-14 8z"/></svg>';
 
 function leggiVideo(v) {
@@ -158,42 +117,7 @@ function buildFrame(el, valore, label, big) {
   });
 }
 
-const grid = document.getElementById("grid");
-const filtri = document.getElementById("filtri");
-
-function nomeCategoria(id) {
-  const c = CATEGORIE.find(function (x) { return x.id === id; });
-  return c ? c.nome : "";
-}
-
-function mostra(cat) {
-  grid.innerHTML = "";
-  LAVORI.filter(function (l) { return cat === "tutti" || l.categoria === cat; }).forEach(function (l) {
-    const item = document.createElement("article");
-    item.className = "clip";
-    item.innerHTML = '<div class="frame"></div><span class="tag"></span><h3></h3><p></p>';
-    item.querySelector(".tag").textContent = nomeCategoria(l.categoria);
-    item.querySelector("h3").textContent = l.titolo;
-    item.querySelector("p").textContent = l.dettaglio;
-    buildFrame(item.querySelector(".frame"), l.yt, l.titolo, false);
-    grid.appendChild(item);
-  });
-  filtri.querySelectorAll("button").forEach(function (b) {
-    b.setAttribute("aria-pressed", b.dataset.cat === cat ? "true" : "false");
-  });
-}
-
-const usate = CATEGORIE.filter(function (c) { return LAVORI.some(function (l) { return l.categoria === c.id; }); });
-[{ id: "tutti", nome: "Tutti" }].concat(usate).forEach(function (c) {
-  const b = document.createElement("button");
-  b.type = "button";
-  b.textContent = c.nome;
-  b.dataset.cat = c.id;
-  b.addEventListener("click", function () { mostra(c.id); });
-  filtri.appendChild(b);
-});
-
-mostra("tutti");
+buildFrame(document.getElementById("showreel"), SHOWREEL, "Showreel", true);
 </script>
 </body>
 </html>

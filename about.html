@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<title>About | Claudio Zaia</title>
+<meta name="description" content="Claudio Zaia, video editor a Conegliano. Chi sono, cosa faccio e come contattarmi.">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎬</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=Hanken+Grotesk:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #ECEEF2; --white: #FFFFFF; --ink: #0F1E3D; --muted: #55607A;
+    --accent: #2F3CFF; --line: #C9CEDA;
+    --display: "Bricolage Grotesque", "Helvetica Neue", Arial, sans-serif;
+    --body: "Hanken Grotesk", "Helvetica Neue", Arial, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--paper); color: var(--ink); font-family: var(--body); font-size: 1.0625rem; line-height: 1.55; -webkit-font-smoothing: antialiased; }
+  a { color: inherit; }
+  :focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+  .wrap { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+
+  header.top { display: flex; justify-content: space-between; align-items: center; padding: 24px 0; }
+  header.top .name { font-family: var(--display); font-size: 1.25rem; font-weight: 800; text-decoration: none; letter-spacing: -0.01em; }
+  header.top nav { display: flex; gap: 28px; }
+  header.top nav a { text-decoration: none; color: var(--muted); font-weight: 600; }
+  header.top nav a:hover { color: var(--accent); }
+  header.top nav a[aria-current="page"] { color: var(--ink); text-decoration: underline; text-decoration-color: var(--accent); text-decoration-thickness: 3px; text-underline-offset: 8px; }
+
+  .frame { position: relative; aspect-ratio: 16 / 9; background: var(--ink); border-radius: 6px; overflow: hidden; }
+  .frame iframe, .frame img { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; object-fit: cover; }
+  .frame button.play { position: absolute; inset: 0; width: 100%; height: 100%; background: transparent; border: 0; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+  .frame button.play span { display: inline-flex; align-items: center; gap: 12px; background: var(--accent); color: var(--white); font-family: var(--display); font-weight: 600; font-size: 1.125rem; padding: 16px 26px; border-radius: 999px; }
+  .frame button.play:hover span { background: var(--white); color: var(--accent); }
+  .frame button.play svg { width: 18px; height: 18px; fill: currentColor; }
+  .frame .empty { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; text-align: center; padding: 24px; color: #B9C2DA;
+    background: repeating-linear-gradient(135deg, rgba(255,255,255,.04) 0 14px, transparent 14px 28px), var(--ink); }
+
+  footer.site { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 16px; border-top: 1px solid var(--line); margin-top: 96px; padding: 28px 0 48px; color: var(--muted); font-size: 0.9375rem; }
+  footer.site span { display: flex; gap: 24px; }
+  footer.site a { text-decoration: none; }
+  footer.site a:hover { color: var(--accent); }
+
+  @media (max-width: 760px) { header.top nav { gap: 18px; } }
+  .about-grid { display: grid; grid-template-columns: 5fr 7fr; gap: 56px; align-items: start; padding: 32px 0 88px; }
+  .foto { position: relative; aspect-ratio: 4 / 5; background: var(--ink); border-radius: 6px; overflow: hidden; }
+  .foto img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .foto .vuota { position: absolute; inset: 0; display: none; align-items: center; justify-content: center; text-align: center; padding: 24px; color: #B9C2DA; }
+  .foto.senza .vuota { display: flex; }
+  .bio h1 { font-family: var(--display); font-weight: 800; font-size: clamp(2.25rem, 5vw, 3.75rem); line-height: 1.02; letter-spacing: -0.03em; color: var(--accent); margin-bottom: 28px; }
+  .bio p { font-size: 1.1875rem; max-width: 54ch; }
+  .bio p + p { margin-top: 16px; }
+  .bio .muted { color: var(--muted); font-size: 1.0625rem; }
+
+  .servizi { padding-bottom: 96px; }
+  .servizi h2, .contact h2 { font-family: var(--display); font-weight: 800; font-size: clamp(1.75rem, 3.5vw, 2.5rem); letter-spacing: -0.02em; line-height: 1.1; margin-bottom: 32px; }
+  .cols3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; }
+  .cols3 div { border-top: 3px solid var(--accent); padding-top: 16px; }
+  .cols3 h3 { font-family: var(--display); font-weight: 600; font-size: 1.375rem; margin-bottom: 8px; }
+  .cols3 p { color: var(--muted); }
+
+  .contact { background: var(--ink); color: var(--white); padding: 72px 0 80px; }
+  .contact .mail { display: inline-block; font-family: var(--display); font-weight: 800; letter-spacing: -0.02em; font-size: clamp(1.5rem, 5vw, 3.25rem); color: var(--white);
+    text-decoration-thickness: 3px; text-underline-offset: 8px; text-decoration-color: var(--accent); word-break: break-word; }
+  .contact .mail:hover { text-decoration-color: var(--white); }
+  .contact .tel { display: block; margin-top: 16px; font-size: 1.125rem; color: #C4CBE0; text-decoration: none; }
+  .contact ul { list-style: none; display: flex; gap: 28px; margin-top: 32px; flex-wrap: wrap; }
+  .contact ul a { color: #C4CBE0; }
+  .contact ul a:hover { color: var(--white); }
+  .contact small { display: block; margin-top: 56px; color: #8C96B3; }
+
+  @media (max-width: 860px) {
+    .about-grid { grid-template-columns: 1fr; gap: 32px; }
+    .foto { max-width: 420px; }
+    .cols3 { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <a class="name" href="index.html">Claudio Zaia</a>
+    <nav aria-label="Menu">
+      <a href="index.html">Work</a>
+      <a href="reel.html">Reel</a>
+      <a href="about.html" aria-current="page">About</a>
+    </nav>
+  </header>
+  <main>
+    <section class="about-grid">
+      <div class="foto" id="foto">
+        <img src="foto.jpg" alt="Claudio Zaia" onerror="document.getElementById('foto').classList.add('senza'); this.remove();">
+        <p class="vuota">Foto da aggiungere: carica foto.jpg su GitHub</p>
+      </div>
+      <div class="bio">
+        <h1>Ciao, sono Claudio.</h1>
+        <p>Video editor con base a Conegliano, Veneto. Mi sono formato ad Amsterdam, dove per oltre dieci anni ho lavorato con brand come Adidas, Calvin Klein e Nike, e con agenzie internazionali come TBWA.</p>
+        <p>Mi muovo tra progetti commerciali, video musicali, contenuti per i social e video con AI, sempre con un occhio alla velocità senza perdere cura del dettaglio e qualità.</p>
+        <p class="muted">Aperto a collaborazioni con agenzie e brand nel Triveneto e oltre.</p>
+      </div>
+    </section>
+
+    <section class="servizi">
+      <h2>Come posso esserti utile</h2>
+      <div class="cols3">
+        <div>
+          <h3>Edit</h3>
+          <p>Dal girato al video finito: commerciali, video musicali e contenuti per i social.</p>
+        </div>
+        <div>
+          <h3>Video con AI</h3>
+          <p>Posso seguire idea, stile e realizzazione, oppure affiancare il tuo team solo in una di queste fasi.</p>
+        </div>
+        <div>
+          <h3>In presenza o da remoto</h3>
+          <p>Lavoro con Premiere Pro, DaVinci Resolve e Higgsfield. Mi muovo nel Triveneto e da remoto lavoro ovunque.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<section class="contact" id="contatti">
+  <div class="wrap">
+    <h2>Scrivimi</h2>
+    <a class="mail" href="mailto:claudiozaiavideo@gmail.com">claudiozaiavideo@gmail.com</a>
+    <a class="tel" href="tel:+393513554599">+39 351 355 4599</a>
+    <ul>
+      <li><a href="https://www.linkedin.com/in/claudiozaiafilm/">LinkedIn</a></li>
+      <li><a href="https://vimeo.com/claudiozaia">Vimeo</a></li>
+    </ul>
+    <small>Claudio Zaia | Conegliano (TV) Italy | 2026</small>
+  </div>
+</section>
+</body>
+</html>
