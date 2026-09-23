@@ -67,6 +67,24 @@
   .clip h3 { font-family: var(--display); font-weight: 600; font-size: 1.1875rem; line-height: 1.25; margin-top: 4px; }
   .clip p { color: var(--muted); font-size: 0.9375rem; }
 
+  /* Modalita cinema */
+  body.no-scroll { overflow: hidden; }
+  .cinema { position: fixed; inset: 0; z-index: 100; display: flex; align-items: center; justify-content: center; padding: 72px 24px 48px;
+    background: rgba(8, 14, 30, .9); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); opacity: 0; transition: opacity .3s ease; }
+  .cinema[hidden] { display: none; }
+  .cinema.aperto { opacity: 1; }
+  .cinema-box { width: min(1200px, 100%, calc((100vh - 220px) * 16 / 9)); transform: scale(.96); transition: transform .3s ease; }
+  .cinema.aperto .cinema-box { transform: scale(1); }
+  .cinema-video { position: relative; aspect-ratio: 16 / 9; background: #000; border-radius: 6px; overflow: hidden; box-shadow: 0 30px 80px rgba(0,0,0,.5); }
+  .cinema-video iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+  .cinema-info { margin-top: 18px; color: var(--white); }
+  .cinema-info h2 { font-family: var(--display); font-weight: 600; font-size: 1.375rem; line-height: 1.25; }
+  .cinema-info p { color: #B9C2DA; font-size: 0.9375rem; }
+  .cinema .chiudi { position: absolute; top: 18px; right: 18px; width: 48px; height: 48px; border-radius: 50%; border: 0; cursor: pointer;
+    background: rgba(255,255,255,.12); color: var(--white); font-size: 28px; line-height: 1; display: flex; align-items: center; justify-content: center; }
+  .cinema .chiudi:hover { background: var(--accent); }
+  @media (prefers-reduced-motion: reduce) { .cinema, .cinema-box { transition: none; } }
+
   @media (max-width: 980px) { .grid { grid-template-columns: repeat(2, 1fr); } }
   @media (max-width: 620px) { .grid { grid-template-columns: 1fr; } .intro { padding-top: 16px; } }
 </style>
@@ -95,6 +113,14 @@
       <a href="https://vimeo.com/claudiozaia">Vimeo</a>
     </span>
   </footer>
+</div>
+
+<div class="cinema" id="cinema" hidden role="dialog" aria-modal="true" aria-labelledby="cinema-titolo">
+  <button class="chiudi" type="button" aria-label="Chiudi il video">&times;</button>
+  <div class="cinema-box">
+    <div class="cinema-video"></div>
+    <div class="cinema-info"><h2 id="cinema-titolo"></h2><p></p></div>
+  </div>
 </div>
 
 <script>
@@ -144,7 +170,7 @@ function leggiVideo(v) {
   return null;
 }
 
-function buildFrame(el, valore, label, big, copertina) {
+function buildFrame(el, valore, label, big, copertina, dettaglio) {
   const v = leggiVideo(valore);
   if (!v) { el.innerHTML = '<div class="empty"><p>Video da aggiungere</p></div>'; return; }
   el.innerHTML = '<img alt="" style="opacity:0">' +
@@ -172,11 +198,15 @@ function buildFrame(el, valore, label, big, copertina) {
       .catch(function () {});
   }
   el.querySelector("button").addEventListener("click", function () {
-    const src = v.tipo === "youtube"
-      ? "https://www.youtube-nocookie.com/embed/" + v.id + "?autoplay=1&rel=0"
-      : "https://player.vimeo.com/video/" + v.id + "?autoplay=1" + (v.h ? "&h=" + v.h : "");
-    el.innerHTML = '<iframe src="' + src + '" title="' + label + '" allow="autoplay; fullscreen; picture-in-picture; encrypted-media" allowfullscreen></iframe>';
+    if (typeof apriCinema === "function") { apriCinema(v, label, dettaglio); return; }
+    el.innerHTML = '<iframe src="' + srcVideo(v) + '" title="' + label + '" allow="autoplay; fullscreen; picture-in-picture; encrypted-media" allowfullscreen></iframe>';
   });
+}
+
+function srcVideo(v) {
+  return v.tipo === "youtube"
+    ? "https://www.youtube-nocookie.com/embed/" + v.id + "?autoplay=1&rel=0"
+    : "https://player.vimeo.com/video/" + v.id + "?autoplay=1" + (v.h ? "&h=" + v.h : "");
 }
 
 const grid = document.getElementById("grid");
@@ -196,7 +226,7 @@ function mostra(cat) {
     item.querySelector(".tag").textContent = nomeCategoria(l.categoria);
     item.querySelector("h3").textContent = l.titolo;
     item.querySelector("p").textContent = l.dettaglio;
-    buildFrame(item.querySelector(".frame"), l.yt, l.titolo, false, l.img);
+    buildFrame(item.querySelector(".frame"), l.yt, l.titolo, false, l.img, l.dettaglio);
     grid.appendChild(item);
   });
   filtri.querySelectorAll("button").forEach(function (b) {
@@ -213,6 +243,36 @@ const usate = CATEGORIE.filter(function (c) { return LAVORI.some(function (l) { 
   b.addEventListener("click", function () { mostra(c.id); });
   filtri.appendChild(b);
 });
+
+const cinema = document.getElementById("cinema");
+let ultimoFocus = null;
+let timerChiusura = null;
+
+function apriCinema(v, titolo, dettaglio) {
+  clearTimeout(timerChiusura);
+  ultimoFocus = document.activeElement;
+  cinema.querySelector(".cinema-video").innerHTML = '<iframe src="' + srcVideo(v) + '" title="' + titolo +
+    '" allow="autoplay; fullscreen; picture-in-picture; encrypted-media" allowfullscreen></iframe>';
+  cinema.querySelector("h2").textContent = titolo;
+  cinema.querySelector(".cinema-info p").textContent = dettaglio || "";
+  cinema.hidden = false;
+  document.body.classList.add("no-scroll");
+  requestAnimationFrame(function () { cinema.classList.add("aperto"); });
+  cinema.querySelector(".chiudi").focus();
+}
+
+function chiudiCinema() {
+  if (cinema.hidden) return;
+  cinema.classList.remove("aperto");
+  document.body.classList.remove("no-scroll");
+  cinema.querySelector(".cinema-video").innerHTML = "";
+  timerChiusura = setTimeout(function () { cinema.hidden = true; }, 300);
+  if (ultimoFocus) ultimoFocus.focus();
+}
+
+cinema.querySelector(".chiudi").addEventListener("click", chiudiCinema);
+cinema.addEventListener("click", function (e) { if (e.target === cinema) chiudiCinema(); });
+document.addEventListener("keydown", function (e) { if (e.key === "Escape") chiudiCinema(); });
 
 mostra("tutti");
 </script>
