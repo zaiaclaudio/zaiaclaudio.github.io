@@ -31,7 +31,7 @@
 
   .frame { position: relative; aspect-ratio: 16 / 9; background: var(--ink); border-radius: 6px; overflow: hidden; }
   .frame iframe, .frame img { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; object-fit: cover; }
-  .frame img { transition: transform .5s ease; }
+  .frame img { transition: transform .5s ease, opacity .4s ease; }
   .frame:hover img { transform: scale(1.03); }
   .frame button.play { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; cursor: pointer; display: flex; align-items: center; justify-content: center;
     background: linear-gradient(to top, rgba(15,30,61,.35), rgba(15,30,61,0) 55%); }
@@ -103,7 +103,7 @@ function leggiVideo(v) {
 function buildFrame(el, valore, label, big, copertina) {
   const v = leggiVideo(valore);
   if (!v) { el.innerHTML = '<div class="empty"><p>Video da aggiungere</p></div>'; return; }
-  el.innerHTML = '<img alt="" loading="lazy" style="display:none">' +
+  el.innerHTML = '<img alt="" style="opacity:0">' +
     '<button class="play' + (big ? ' big' : '') + '" type="button" aria-label="Guarda: ' + label + '"><span>' + PLAY_ICON + '</span></button>';
   const img = el.querySelector("img");
   img.addEventListener("load", function () {
@@ -111,7 +111,7 @@ function buildFrame(el, valore, label, big, copertina) {
       img.src = "https://img.youtube.com/vi/" + v.id + "/hqdefault.jpg";
       return;
     }
-    img.style.display = "block";
+    img.style.opacity = "1";
   });
   img.addEventListener("error", function () {
     if (v.tipo === "youtube" && img.src.indexOf("maxresdefault") > -1) img.src = "https://img.youtube.com/vi/" + v.id + "/hqdefault.jpg";
