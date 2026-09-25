@@ -77,11 +77,13 @@
   .cinema.aperto .cinema-box { transform: scale(1); }
   .cinema-video { position: relative; aspect-ratio: 16 / 9; background: #000; border-radius: 6px; overflow: hidden; box-shadow: 0 30px 80px rgba(0,0,0,.5); }
   .cinema-video iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+  .cinema.verticale .cinema-box { width: min(440px, 100%, calc((100dvh - 240px) * 9 / 16)); }
+  .cinema.verticale .cinema-video { aspect-ratio: 9 / 16; }
   .cinema-info { margin-top: 18px; color: var(--white); }
   .cinema-info h2 { font-family: var(--display); font-weight: 600; font-size: 1.375rem; line-height: 1.25; }
   .cinema-info p { color: #B9C2DA; font-size: 0.9375rem; }
   .cinema .chiudi { position: absolute; top: 18px; right: 18px; width: 48px; height: 48px; border-radius: 50%; border: 0; cursor: pointer;
-    background: rgba(255,255,255,.12); color: var(--white); font-size: 28px; line-height: 1; display: flex; align-items: center; justify-content: center; }
+    background: rgba(255,255,255,.18); color: var(--white); font-size: 28px; z-index: 2; line-height: 1; display: flex; align-items: center; justify-content: center; }
   .cinema .chiudi:hover { background: var(--accent); }
   @media (prefers-reduced-motion: reduce) { .cinema, .cinema-box { transition: none; } }
 
@@ -132,18 +134,21 @@
    Copertina (facoltativa): carica un'immagine su GitHub e aggiungi
    img: "nomefile.jpg" alla riga del video. Se non c'e', il sito usa
    la copertina che hai scelto su Vimeo o YouTube.
+   Video verticale (9:16): aggiungi formato: "verticale" alla riga.
    Ogni riga finisce con la virgola, tranne l'ultima.
    ============================================================ */
 const LAVORI = [
+  // SCARPA: togli le due barre qui sotto e metti il link Vimeo
+  // { titolo: "SCARPA Files - Confession: 03", dettaglio: "Spec non commissionato, regia e produzione AI", categoria: "ai", formato: "verticale", yt: "LINK_VIMEO" },
   { titolo: "Calvin Klein - Overall", dettaglio: "Calvin Klein, edit", categoria: "commerciali", yt: "https://vimeo.com/312907256" },
   { titolo: "Adidas - Claim Your Trophy", dettaglio: "Adidas, edit", categoria: "commerciali", yt: "https://vimeo.com/312907126" },
   { titolo: "OUR EARTH - Iris Van Herpen", dettaglio: "Future Frank, creative direction + edit", categoria: "commerciali", yt: "https://vimeo.com/312907019" },
   { titolo: "NikeSB - CPH Open Tour", dettaglio: "Nike, creative direction + edit", categoria: "commerciali", yt: "https://vimeo.com/312906534" },
   { titolo: "Absolute - Tomorrowland", dettaglio: "Absolute, edit", categoria: "commerciali", yt: "https://vimeo.com/422467738" },
   { titolo: "Goldband - Alles Kapot", dettaglio: "Video musicale, 1,4 milioni di views", categoria: "musica", yt: "https://www.youtube.com/watch?v=MZnHEy-FIKs" },
-  { titolo: "Sidel Infissi", dettaglio: "Digitalia, direzione creativa AI", categoria: "ai", yt: "https://vimeo.com/1228917833" },
+  { titolo: "Sidel Infissi", dettaglio: "Digitalia, direzione creativa AI", categoria: "ai", formato: "verticale", yt: "https://vimeo.com/1228917833" },
   { titolo: "Mionetto 2026", dettaglio: "Awom, mixed media e AI", categoria: "ai", yt: "https://vimeo.com/1228916392" },
-  { titolo: "Bibanesi", dettaglio: "Awom, ideazione e creazione AI", categoria: "ai", yt: "https://vimeo.com/1228918082" }
+  { titolo: "Bibanesi", dettaglio: "Awom, ideazione e creazione AI", categoria: "ai", formato: "verticale", yt: "https://vimeo.com/1228918082" }
 ];
 
 /* ---- da qui in giu' non serve toccare nulla ---- */
@@ -170,35 +175,38 @@ function leggiVideo(v) {
   return null;
 }
 
-function buildFrame(el, valore, label, big, copertina, dettaglio) {
+function buildFrame(el, valore, label, big, copertina, dettaglio, verticale) {
   const v = leggiVideo(valore);
   if (!v) { el.innerHTML = '<div class="empty"><p>Video da aggiungere</p></div>'; return; }
-  el.innerHTML = '<img alt="" style="opacity:0">' +
+  el.innerHTML = '<img class="main" alt="" style="opacity:0">' +
     '<button class="play' + (big ? ' big' : '') + '" type="button" aria-label="Guarda: ' + label + '"><span>' + PLAY_ICON + '</span></button>';
-  const img = el.querySelector("img");
+  const img = el.querySelector("img.main");
+  const sfondo = el.querySelector("img.sfondo");
+  if (sfondo) sfondo.addEventListener("load", function () { sfondo.style.opacity = "1"; });
+  function setSrc(u) { img.src = u; if (sfondo) sfondo.src = u; }
   img.addEventListener("load", function () {
     if (v.tipo === "youtube" && img.naturalWidth <= 120 && img.src.indexOf("maxresdefault") > -1) {
-      img.src = "https://img.youtube.com/vi/" + v.id + "/hqdefault.jpg";
+      setSrc("https://img.youtube.com/vi/" + v.id + "/hqdefault.jpg");
       return;
     }
     img.style.opacity = "1";
   });
   img.addEventListener("error", function () {
-    if (v.tipo === "youtube" && img.src.indexOf("maxresdefault") > -1) img.src = "https://img.youtube.com/vi/" + v.id + "/hqdefault.jpg";
+    if (v.tipo === "youtube" && img.src.indexOf("maxresdefault") > -1) setSrc("https://img.youtube.com/vi/" + v.id + "/hqdefault.jpg");
   });
   if (copertina) {
-    img.src = copertina;
+    setSrc(copertina);
   } else if (v.tipo === "youtube") {
-    img.src = "https://img.youtube.com/vi/" + v.id + "/maxresdefault.jpg";
+    setSrc("https://img.youtube.com/vi/" + v.id + "/maxresdefault.jpg");
   } else {
     const url = "https://vimeo.com/" + v.id + (v.h ? "/" + v.h : "");
     fetch("https://vimeo.com/api/oembed.json?width=1280&url=" + encodeURIComponent(url))
       .then(function (r) { return r.json(); })
-      .then(function (d) { if (d && d.thumbnail_url) img.src = d.thumbnail_url; })
+      .then(function (d) { if (d && d.thumbnail_url) setSrc(d.thumbnail_url); })
       .catch(function () {});
   }
   el.querySelector("button").addEventListener("click", function () {
-    if (typeof apriCinema === "function") { apriCinema(v, label, dettaglio); return; }
+    if (typeof apriCinema === "function") { apriCinema(v, label, dettaglio, verticale); return; }
     el.innerHTML = '<iframe src="' + srcVideo(v) + '" title="' + label + '" allow="autoplay; fullscreen; picture-in-picture; encrypted-media" allowfullscreen></iframe>';
   });
 }
@@ -226,7 +234,7 @@ function mostra(cat) {
     item.querySelector(".tag").textContent = nomeCategoria(l.categoria);
     item.querySelector("h3").textContent = l.titolo;
     item.querySelector("p").textContent = l.dettaglio;
-    buildFrame(item.querySelector(".frame"), l.yt, l.titolo, false, l.img, l.dettaglio);
+    buildFrame(item.querySelector(".frame"), l.yt, l.titolo, false, l.img, l.dettaglio, l.formato === "verticale");
     grid.appendChild(item);
   });
   filtri.querySelectorAll("button").forEach(function (b) {
@@ -248,13 +256,14 @@ const cinema = document.getElementById("cinema");
 let ultimoFocus = null;
 let timerChiusura = null;
 
-function apriCinema(v, titolo, dettaglio) {
+function apriCinema(v, titolo, dettaglio, verticale) {
   clearTimeout(timerChiusura);
   ultimoFocus = document.activeElement;
   cinema.querySelector(".cinema-video").innerHTML = '<iframe src="' + srcVideo(v) + '" title="' + titolo +
     '" allow="autoplay; fullscreen; picture-in-picture; encrypted-media" allowfullscreen></iframe>';
   cinema.querySelector("h2").textContent = titolo;
   cinema.querySelector(".cinema-info p").textContent = dettaglio || "";
+  cinema.classList.toggle("verticale", !!verticale);
   cinema.hidden = false;
   document.body.classList.add("no-scroll");
   requestAnimationFrame(function () { cinema.classList.add("aperto"); });
